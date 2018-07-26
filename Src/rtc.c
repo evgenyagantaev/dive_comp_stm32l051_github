@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
+  * File Name          : RTC.c
+  * Description        : This file provides code for the configuration
+  *                      of the RTC instances.
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -37,55 +37,102 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H__
-#define __MAIN_H__
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l0xx_hal.h"
+#include "rtc.h"
 
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN 0 */
 
-/* USER CODE END Includes */
+/* USER CODE END 0 */
 
-/* Private define ------------------------------------------------------------*/
+RTC_HandleTypeDef hrtc;
 
-#define led0_Pin GPIO_PIN_0
-#define led0_GPIO_Port GPIOB
-#define spi2_cs_Pin GPIO_PIN_12
-#define spi2_cs_GPIO_Port GPIOB
-#define spi1_cs0_Pin GPIO_PIN_8
-#define spi1_cs0_GPIO_Port GPIOA
-#define spi1_cs1_Pin GPIO_PIN_9
-#define spi1_cs1_GPIO_Port GPIOA
-#define spi1_cs2_Pin GPIO_PIN_10
-#define spi1_cs2_GPIO_Port GPIOA
-#define spi1_cs3_Pin GPIO_PIN_11
-#define spi1_cs3_GPIO_Port GPIOA
-#define spi2_cs_lcd_Pin GPIO_PIN_13
-#define spi2_cs_lcd_GPIO_Port GPIOA
+/* RTC init function */
+void MX_RTC_Init(void)
+{
+  	RTC_TimeTypeDef sTime;
+  	RTC_DateTypeDef sDate;
 
-/* ########################## Assert Selection ############################## */
-/**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
-/* #define USE_FULL_ASSERT    1U */
+    /**Initialize RTC Only 
+    */
+  	hrtc.Instance = RTC;
+  	hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  	hrtc.Init.AsynchPrediv = 81;
+  	hrtc.Init.SynchPrediv = 503;
+  	hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  	hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  	hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  	hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  	if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  	{
+  	  _Error_Handler(__FILE__, __LINE__);
+  	}
 
-/* USER CODE BEGIN Private defines */
+    // Initialize RTC and set the Time and Date 
+	//*
+  	sTime.Hours = 0x19;
+  	sTime.Minutes = 0x11;
+  	sTime.Seconds = 0x0;
+  	sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  	sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  	if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  	{
+    	_Error_Handler(__FILE__, __LINE__);
+  	}	
 
-/* USER CODE END Private defines */
+  	sDate.WeekDay = RTC_WEEKDAY_THURSDAY;
+  	sDate.Month = RTC_MONTH_JULY;
+  	sDate.Date = 0x26;
+  	sDate.Year = 0x18;
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-void _Error_Handler(char *, int);
-
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-#ifdef __cplusplus
+  	if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  	{
+    	_Error_Handler(__FILE__, __LINE__);
+  	}
+	//*/
 }
-#endif
 
-#endif /* __MAIN_H__ */
+void HAL_RTC_MspInit(RTC_HandleTypeDef* rtcHandle)
+{
+
+  if(rtcHandle->Instance==RTC)
+  {
+  /* USER CODE BEGIN RTC_MspInit 0 */
+
+  /* USER CODE END RTC_MspInit 0 */
+    /* RTC clock enable */
+    __HAL_RCC_RTC_ENABLE();
+  /* USER CODE BEGIN RTC_MspInit 1 */
+
+  /* USER CODE END RTC_MspInit 1 */
+  }
+}
+
+void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
+{
+
+  if(rtcHandle->Instance==RTC)
+  {
+  /* USER CODE BEGIN RTC_MspDeInit 0 */
+
+  /* USER CODE END RTC_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_RTC_DISABLE();
+  /* USER CODE BEGIN RTC_MspDeInit 1 */
+
+  /* USER CODE END RTC_MspDeInit 1 */
+  }
+} 
+
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
